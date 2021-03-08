@@ -1,0 +1,95 @@
+---
+title: "bivariate.industry"
+author: "Kailey Ulland"
+date: "2/17/2021"
+output: html_document
+---
+
+```{r}
+#got the data
+link="https://github.com/Kent253/543/raw/main/r1_sect_a_3_4_5_6_8_9_12.csv"
+
+data=read.csv(link)
+```
+```{r}
+#changing variable name
+names(data)[names(data) == "s6q12"] <- "industry"
+```
+
+```{r}
+#data as table, excluding missing values
+(Sectorxindustry=table(data$industry,data$sector,
+                       exclude = ''))
+```
+```{r}
+library(magrittr)
+(sectorxindustry_mgCol=prop.table(Sectorxindustry,
+                            margin = 2)%>%round(.,3))
+```
+
+
+```{r}
+SectorDF=as.data.frame(Sectorxindustry)
+names(SectorDF)=c("industry","sector","counts")
+```
+
+```{r}
+SectorDF
+```
+```{r}
+#renaming the levels (shortened titles)
+levels(SectorDF$industry) <- c("Agriculture",
+                               "Manufacturing",
+                               "Electricity",
+                               "Construction",
+                               "Hospitality",
+                               "Transportation",
+                               "Professional",
+                               "Service")
+```
+
+```{r}
+SectorDF$pctCol=as.data.frame(sectorxindustry_mgCol)[,3]
+```
+```{r}
+head(SectorDF)
+```
+
+```{r}
+#all about that base
+library(ggplot2)
+base1=ggplot(data=SectorDF, 
+             aes(x=industry, y=counts,
+                 fill=sector)) # this 'aes' in legend
+
+barDodge= base1 +  geom_bar(stat="identity",
+                            position ='dodge') 
+barDodge
+```
+
+```{r}
+#angle the axis titles
+barDodge2 = barDodge + theme(axis.text.x = element_text(angle = 45, hjust = 1,size = 6),
+              axis.text.y = element_text(size = 4))
+barDodge2
+```
+```{r}
+#titles
+TITLE = 'Empoyment Industry by Sector'
+SOURCE = 'Source: World Bank'
+
+barDodge2 = barDodge2 + labs(title=TITLE,
+                             x = NULL,
+                             y = 'Counts',
+                             source = SOURCE)
+barDodge2
+```
+```{r}
+library(plotly)
+```
+```{r}
+#interactive!
+barDodge2%>%ggplotly()
+```
+
+

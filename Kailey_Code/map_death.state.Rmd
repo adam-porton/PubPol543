@@ -1,0 +1,69 @@
+---
+title: "Nigeria Covid Death Map"
+author: "Kailey Ulland"
+date: "3/3/21"
+---
+
+```{r}
+link='https://github.com/Kent253/543/raw/main/Covid_Cases_by_State.csv'
+data.covid=read.csv(link)
+```
+```{r}
+linkMap="https://github.com/cfhenn/nigeria_covid_survey_r_visualizations/raw/main/Data/nigeria_geojson.geojson" 
+
+map_ng=read_sf(linkMap)
+```
+```{r}
+library(sf)
+```
+```{r}
+names(map_ng)[names(map_ng) == "state"] <- "STATE"
+```
+
+
+```{r}
+map_ng_vars=merge(map_ng, #map first
+                   data.covid,
+                   by='STATE') 
+```
+
+```{r}
+library(ggplot2)
+# plot original map - color=NA is about borders
+base=ggplot(data=map_ng) + geom_sf(fill='grey90',
+                                     color='grey50') + theme_classic()
+
+base
+```
+```{r}
+map_ng_vars$pop_cov <- map_ng_vars$CASES/map_ng_vars$POP_2016
+```
+```{r}
+map_ng_vars$pop_death <- map_ng_vars$DEATHS/map_ng_vars$POP_2016 * 100
+```
+
+
+```{r}
+colMap= base + geom_sf(data=map_ng_vars,
+                       aes(fill=DEATHS, text=paste("State:",STATE)),
+                       color=NA)
+
+colMap=colMap + scale_fill_gradient(low = 'yellow',
+                                    high= 'red',
+                                    na.value = "grey90")
+colMap
+```
+```{r}
+library(plotly)
+```
+```{r}
+titleText='COVID-19 deaths by State in 2020'
+sourceText='Source: National Bureau of Statistics'
+
+colMap = colMap + labs(title=titleText,
+                     caption = sourceText)
+```
+```{r}
+colMap%>%ggplotly()
+```
+

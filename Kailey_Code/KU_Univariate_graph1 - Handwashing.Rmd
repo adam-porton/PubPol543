@@ -1,0 +1,91 @@
+
+---
+title: "Univariate Plot"
+Author: "Kailey Ulland"
+Date: "1/15/2021"
+
+
+```{r}
+#open the dataset 
+link="https://github.com/Kent253/543/raw/main/r1_sect_a_3_4_5_6_8_9_12.csv"
+
+R_one=read.csv(link)
+```
+
+```{r}
+#rename the variable
+names(R_one)[names(R_one) == "s4q1"] <- "handwashing_more"
+```
+```{r}
+#set variable to a table
+#to get rid of unknown, exclude = ' '
+table1=table(R_one$handwashing_more,
+                exclude = '')
+table1
+```
+```{r}
+prop.table(table1)
+
+```
+```{r}
+#Rename all categories
+names(table1)[1]='YES'
+names(table1)[2]='NO'
+```
+```{r}
+#show as percentages
+HandW=prop.table(table1)*100
+HandW
+```
+```{r}
+#Read table as a dataframe
+HandWa=as.data.frame(HandW)
+names(HandWa)=c("use_soap","pct")
+HandWa
+```
+
+```{r}
+#building the base
+library(ggplot2)
+
+base= ggplot(data = HandWa, 
+             aes(x = use_soap,
+                 y = pct)) 
+
+```
+```{r}
+graph1 = base + geom_bar(fill ="deepskyblue1",
+                        stat = 'identity') 
+graph1
+```
+
+```{r}
+# titles
+titleText='Since March, have you washed your hands more often?'
+sourceText='Source: World Bank'
+
+graph2 = graph1 + labs(title=titleText,
+                     x =NULL, 
+                     y = NULL,
+                     caption = sourceText)
+graph2
+```
+```{r}
+library(scales)
+```
+```{r}
+# labels on the bars
+LABS=paste0(round(HandWa$pct,2), '%')
+graph3 = graph2 + geom_text(vjust=-0,
+                          size = 4,
+                          aes(y = pct ,
+                              label = LABS))
+graph3
+
+```
+```{r}
+# theme classic and y axis percentage labels
+graph4= graph3 + theme_classic()+ scale_y_continuous(labels = scales::unit_format(suffix = '%'))
+graph4
+```
+
